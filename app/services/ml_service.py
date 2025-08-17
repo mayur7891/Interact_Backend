@@ -3,17 +3,16 @@ import os
 
 import gdown
 
-# Define model URLs
 MODEL_URLS = {
     "hdbscan_model.pkl": "https://drive.google.com/uc?id=1AysIzvLBhdTWrA2gSlDbHT0CufdULR5M",
     "umap_reducer.pkl": "https://drive.google.com/uc?id=1AtQqopkoN5HtkFplQdOgyL3NMhM9jqxL",
 }
 
-# Create directory for models
+
 MODEL_DIR = "app/pickles"
 os.makedirs(MODEL_DIR, exist_ok=True)
 
-# Download models if not present
+
 for model_name, url in MODEL_URLS.items():
     file_path = os.path.join(MODEL_DIR, model_name)
     if not os.path.exists(file_path):
@@ -21,7 +20,7 @@ for model_name, url in MODEL_URLS.items():
         gdown.download(url, file_path, quiet=False)
         print(f"Saved: {file_path}")
 
-# Load models
+
 with open(os.path.join(MODEL_DIR, "hdbscan_model.pkl"), "rb") as f:
     hdbscan_model = pickle.load(f)
 
