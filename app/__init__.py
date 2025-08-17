@@ -20,7 +20,7 @@ def create_app():
 
     mongo.init_app(app)
     if mongo.db is None:
-        print("⚠MongoDB connection failed!")
+        print("MongoDB connection failed!")
 
     bcrypt.init_app(app)
     CORS(app)
