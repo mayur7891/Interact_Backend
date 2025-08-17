@@ -11,7 +11,7 @@ from datetime import timezone
 from app import socketio
 from flask_socketio import emit,join_room
 
-comment_bp = Blueprint("comments", __name__)  # Define Blueprint
+comment_bp = Blueprint("comments", __name__)
 
 # @comment_bp.route("/<int:video_id>/comments", methods=["GET"])
 # def get_comments(video_id):
@@ -32,7 +32,7 @@ comment_bp = Blueprint("comments", __name__)  # Define Blueprint
 @comment_bp.route("/<int:video_id>/comments", methods=["GET"])
 def get_comments(video_id):
     """Fetch all comments for a particular video ID."""
-    comments = CommentModel.get_comments_by_video(video_id)  # Convert to string for MongoDB
+    comments = CommentModel.get_comments_by_video(video_id)
     
     if comments:
         return jsonify(comments), 200
@@ -44,7 +44,7 @@ def get_comments(video_id):
 def get_comments_by_commentId(comment_id):
     """Fetch all comments for a particular video ID."""
     object_id = ObjectId(comment_id)
-    comments = CommentModel.get_comment_by_id(object_id)  # Convert to string for MongoDB
+    comments = CommentModel.get_comment_by_id(object_id)
     
     if comments:
         return jsonify(comments), 200
@@ -57,9 +57,9 @@ def get_replies_by_commentId(comment_id):
     """Fetch all comments for a particular video ID."""
     try:
         object_id = ObjectId(comment_id)
-        replies = CommentModel.get_replies(object_id)  # Retrieve replies from the database
+        replies = CommentModel.get_replies(object_id) 
 
-        if not replies:  # Check if there are no replies
+        if not replies:
             return jsonify({"message": "No replies found for this comment"}), 200
 
         return jsonify(replies), 200
@@ -101,7 +101,7 @@ def get_unique_clusters(video_id):
 # def add_comment():
 #     """API to process a new comment"""
     
-#     # Step 1: Parse request data
+
 #     data = request.json
 #     comment_text = data.get("comment_text")
 #     video_id = data.get("video_id")
@@ -111,12 +111,12 @@ def get_unique_clusters(video_id):
 #         return jsonify({"error": "Missing required fields"}), 400
 
 #     try:
-#         # Step 2: Generate embedding & sentiment
+#
 #         embedding = preprocess_text(comment_text)
 #         sentiment = analyze_sentiment(comment_text)
 #         cluster = -1  # Default until clustering is applied
 #         timestamp = datetime.datetime.now(timezone.utc).isoformat()
-#         # Step 3: Get existing sentiment stats for the video
+#       
 #         sentiments = SentimentModel.get_sentiment_by_video_id(video_id)
 
 #         if sentiments:
@@ -126,7 +126,7 @@ def get_unique_clusters(video_id):
 #         else:
 #             positive, negative, neutral = 0, 0, 0  # Default values
 
-#         # Step 4: Update sentiment counts
+#    
 #         if sentiment == "positive":
 #             positive += 1
 #         elif sentiment == "negative":
@@ -134,10 +134,10 @@ def get_unique_clusters(video_id):
 #         else:
 #             neutral += 1
 
-#         # Step 5: Update sentiment in DB
+#   
 #         SentimentModel.add_sentiment(video_id, positive, negative, neutral)
 
-#         # Step 6: Store comment in DB
+#      
 #         CommentModel.add_comment(video_id, user_id, comment_text, embedding, cluster, sentiment,timestamp)
 
 #         return jsonify({"message": "Comment processed successfully!"}), 201
@@ -183,13 +183,12 @@ def add_comment(video_id):
     try:
         embedding = preprocess_text(comment_text)
         sentiment = analyze_sentiment(comment_text)
-        cluster = -1  # Default cluster
+        cluster = -1  
         timestamp = datetime.datetime.now(timezone.utc).isoformat()
 
         sentiments = SentimentModel.get_sentiment_by_video_id(video_id)
         positive, negative, neutral = (sentiments or {}).get("positive", 0), (sentiments or {}).get("negative", 0), (sentiments or {}).get("neutral", 0)
 
-        # Update sentiment counts
         if sentiment == "positive":
             positive += 1
         elif sentiment == "negative":
@@ -197,7 +196,6 @@ def add_comment(video_id):
         else:
             neutral += 1
 
-        # Update sentiment in DB
         SentimentModel.add_sentiment(video_id, positive, negative, neutral)
 
         comment_id = CommentModel.add_comment(video_id, user_id, comment_text, embedding, cluster, sentiment, timestamp)
@@ -221,7 +219,6 @@ def add_comment(video_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Add a new reply to a comment
 @comment_bp.route("/<comment_id>/reply", methods=["POST"])
 def add_reply(comment_id):
     data = request.json
@@ -250,19 +247,18 @@ def add_reply(comment_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Socket.io: Join room per video
+
 @socketio.on("join")
 def on_join(data):
     video_id = data["video_id"]
     join_room(f"video_{video_id}")
 
-# Socket.io: Handle new comment event
+
 @socketio.on("new_comment")
 def handle_new_comment(data):
     video_id = data["video_id"]
     emit("receive_comment", data, room=f"video_{video_id}")
 
-# Socket.io: Handle new reply event
 @socketio.on("new_reply")
 def handle_new_reply(data):
     comment_id = data["comment_id"]
