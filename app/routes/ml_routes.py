@@ -45,12 +45,11 @@ def test_preprocessing(video_id):
         similarity = cosine_similarity(query_embedding.reshape(1, -1), embedding.reshape(1, -1))[0][0]
         similarities.append((record, similarity))
 
-    # Sort and filter top matches
+  
     similarities.sort(key=lambda x: x[1], reverse=True)
     threshold = 0.35
     top_comments = [record for record, score in similarities[:5] if score >= threshold]
 
-    # Remove the "embedding" key from the response
     for comment in top_comments:
         comment.pop("embedding", None)
 
@@ -65,15 +64,14 @@ def get_clusters(video_id):
         return jsonify({"message": "No comments found for this video."}), 404
 
     embeddings = [record["embedding"] for record in records if "embedding" in record]
-    clusters_list = cluster(embeddings)  # Call the clustering function
+    clusters_list = cluster(embeddings)  
 
-    # Prepare bulk update list
+ 
     bulk_updates = [
         {"_id": record["_id"], "cluster": cluster_id}
         for record, cluster_id in zip(records, clusters_list)
     ]
 
-    # Update cluster assignments in DB
     CommentModel.bulk_update_clusters(bulk_updates)
 
     return jsonify({"message": "Clusters updated successfully."})
@@ -116,7 +114,7 @@ def get_All_cluster_replies(video_id,creator_id):
         return jsonify({"error": str(e)}), 500
     
 
-#Summary routes
+
     
 @ml_bp.route('/getsummary/<int:video_id>', methods=['GET'])
 def get_summary(video_id):
