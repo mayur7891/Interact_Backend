@@ -7,7 +7,7 @@ video_bp = Blueprint('video_routes', __name__)
 @video_bp.route('/add_video', methods=['POST'])
 def add_video():
     """API to add a new video"""
-    data = request.json  # Get JSON data from request
+    data = request.json  
     result = VideoModel.add_video(
         video_ID=data.get("video_id"),
         description=data.get("description"),
